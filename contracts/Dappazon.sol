@@ -60,6 +60,12 @@ contract Dappazon {
         // fetch items saved 
         Item memory item = items[_id];
 
+        // make sure the we don't buy at low price
+        require(msg.value > item.cost, "You don't have enough founds to buy this item");
+
+        //make sure the we have the item in our stock
+        require (item.stock > 0, "We dont have the item in our stock");
+
         // create order
         Order memory order = Order(block.timestamp, item);
 
@@ -74,5 +80,11 @@ contract Dappazon {
         // emit event
         emit Buy(msg.sender, orderCount[msg.sender], item.id);
      }
+     
+      // withdraw from the blockchain
 
+      function withdraw() public onlyOwner {
+        (bool success, ) = owner.call{value: address(this).balance}("");
+        require(success);
+     }
 }
